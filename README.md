@@ -50,3 +50,12 @@ sudo usermod -a -G microk8s $USER && sudo chown -f -R $USER ~/.kube
 ```
 sudo apt-get -y update && sudo apt-get -y upgrade && sudo apt -y install && sudo apt -y install ubuntu-mate-core && sudo apt install tightvncserver && tightvncserver
 ```
+### useful jupyter-book
+update table
+```
+jupyter-book build mynewbook/
+```
+
+```
+ghp-import -n -p -f _build/html 
+```
