@@ -31,11 +31,11 @@ https://microk8s.io/docs/addon-kubeflow
 ### useful gcloud commands
 create new vm 6vCPUs 20 GB RAM 100 GB SSD
 ```
-gcloud compute instances create kubeflow-01 --project=mlops-329613 --zone=us-west4-b --machine-type=e2-custom-6-20480 --network-interface=network-tier=PREMIUM,subnet=default --maintenance-policy=MIGRATE --service-account=106984451854-compute@developer.gserviceaccount.com --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append --create-disk=auto-delete=yes,boot=yes,device-name=kubeflow-01,image=projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20210927,mode=rw,size=100,type=projects/mlops-329613/zones/us-west4-b/diskTypes/pd-ssd --no-shielded-secure-boot --shielded-vtpm --shielded-integrity-monitoring --reservation-affinity=any
+gcloud compute instances create kubeflow-01
 ```
 connect to instance with ssh flag for SOCKS proxy
 ```
-gcloud beta compute ssh --zone "us-west4-b" "kubeflow-01"  --project "mlops-329613" --ssh-flag="-D9999"
+gcloud beta compute ssh --zone "us-west4-b" "kubeflow-01"  --project "mlops" --ssh-flag="-D9999"
 ```
 ### microk8s
 install microk8s with channel specification
@@ -49,4 +49,13 @@ sudo usermod -a -G microk8s $USER && sudo chown -f -R $USER ~/.kube
 ### GUI & VNC server
 ```
 sudo apt-get -y update && sudo apt-get -y upgrade && sudo apt -y install && sudo apt -y install ubuntu-mate-core && sudo apt install tightvncserver && tightvncserver
+```
+### useful jupyter-book
+update table
+```
+jupyter-book build mynewbook/
+```
+
+```
+ghp-import -n -p -f _build/html 
 ```
