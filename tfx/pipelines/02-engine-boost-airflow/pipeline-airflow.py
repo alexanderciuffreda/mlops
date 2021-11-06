@@ -24,8 +24,15 @@ from typing import List, Text
 
 from absl import logging
 from tfx import v1 as tfx
+from tfx.orchestration.airflow.airflow_runner import AirflowDAGRunner
 
 _pipeline_name = 'engine_xgboost_local'
+
+#airflow configs
+_airflow_config = {
+    'schedule_interval': None,
+    'start_date': datetime.datetime(2019, 1, 1),
+}
 
 # Feel free to customize as needed.
 _root = Path(__file__).parent
@@ -117,10 +124,10 @@ def create_pipeline(
   )
 
 
-if __name__ == '__main__':
-  logging.set_verbosity(logging.INFO)
-  tfx.orchestration.LocalDagRunner().run(
-      create_pipeline(pipeline_name=_pipeline_name,
+      
+# 'DAG' below need to be kept for Airflow to detect dag.
+DAG = AirflowDagRunner(AirflowPipelineConfig(_airflow_config)).run(
+    create_pipeline(pipeline_name=_pipeline_name,
                       pipeline_root=_pipeline_root,
                       data_root=_data_root,
                       module_file=_module_file,
