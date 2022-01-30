@@ -13,9 +13,9 @@ builder = pyspark.sql.SparkSession.builder.appName("mlops") \
 
 spark = configure_spark_with_delta_pip(builder).getOrCreate()
 # read data
-df_test = spark.read.csv("/Users/alexander/mlops/dataset/test_FD001.txt", sep=" ")
-df_train = spark.read.csv("/Users/alexander/mlops/dataset/train_FD001.txt", sep=" ")
-df_rul = spark.read.csv("/Users/alexander/mlops/dataset/RUL_FD001.txt", sep=" ",)
+df_test = spark.read.csv("test_FD001.txt", sep=" ")
+df_train = spark.read.csv("train_FD001.txt", sep=" ")
+df_rul = spark.read.csv("RUL_FD001.txt", sep=" ",)
 
 
 # save data in delta lake bronze stage
