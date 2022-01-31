@@ -18,6 +18,7 @@ Run pipeline:
 $ python examples/xgboost_penguins/penguin_pipeline_local.py
 """
 
+
 import os
 from pathlib import Path
 from typing import List, Text
@@ -26,6 +27,27 @@ from absl import logging
 from tfx import v1 as tfx
 from tfx.orchestration.airflow.airflow_runner import AirflowDAGRunner
 from tfx.orchestration.airflow.airflow_dag_runner import AirflowPipelineConfig
+from tfx.components.base import executor_spec
+from tfx.components.example_gen.component import FileBasedExampleGen
+from tfx.components.example_gen.custom_executors import parquet_executor
+
+from typing import Any, Dict
+import apache_beam as beam
+import tensorflow as tf
+from tfx.components.example_gen import utils
+from tfx.components.example_gen.base_example_gen_executor import BaseExampleGenExecutor
+from tfx.types import standard_component_specs
+
+from tfx.components.base import executor_spec
+
+class Executor(BaseExampleGenExecutor):
+    def GetInputSourceToExamplePTransform(self) -> beam.PTransform:
+        return _ParquetToExample
+
+example_gen = FileBasedExampleGen(
+    input_base=parquet_dir_path,
+    custom_executor_spec=executor_spec.ExecutorClassSpec(
+        parquet_executor.Executor))
 
 
 _pipeline_name = 'engine_xgboost_local'
@@ -76,6 +98,7 @@ def create_pipeline(
       beam_pipeline_args: arguments for Beam powered components
   """
   example_gen = tfx.components.CsvExampleGen(input_base=data_root)
+  example_gen = FileBasedExampleGen(input_base=parquet_dir_path,custom_executor_spec=executor_spec.ExecutorClassSpec(parquet_executor.Executor))
 
   # Computes statistics over data for visualization and example validation.
   statistics_gen = tfx.components.StatisticsGen(
