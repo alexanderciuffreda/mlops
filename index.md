@@ -29,14 +29,14 @@ Im Verlauf des Projektes hat sich gezeigt, dass sich Delta Lake nicht nur ideal 
 
 Mit der Unterteilung der Daten in unterschiedliche Qualitätsstufen verfolgten wir den Ansatz der Multi-Hop Architektur. Hierbei stellen die Rohdaten im Bronzeordner die „single source of truth“ dar, von der alles ausgeht. In weiteren Schritten wurden die Daten für die Modellierung aufbereitet. Die durchgeführten Aufbereitungsschritte werden in dem nächsten Kapitel näher erläutert. Die aufbereiteten Daten wurden dann anschließend in den Silverordner geladen. Von dort aus stehen die Daten für das Training zur Verfügung. Auf einen Goldordner haben wir in unserem Usecase verzichtet, da die Trennung zwischen Rohdaten und Trainingsdaten für unsere Zwecke genügte.
 
-![to_silver](Bilder_mlops_doku/image10.png)
+![to_silver](Bilder_mlops_doku/image16.png)
 
 Die abgespeicherten Daten stehen im Delta Lake als Parquetfiles zur Verfügung. Dies bringt mehrere Vorteile mit sich. Zu einem wird durch die Abspeicherung der Daten in Parquetfiles weniger Speicherplatz benötigt und zum anderen können die Daten auch effizienter verarbeitet werden.
 
 ### 3.3 Data Preparation
 Damit die Daten später für die Modellierung auch verwendet werden können, müssen die Daten zunächst aufbereitet werden. Hierfür waren mehrere Schritte notwendig:
 
-![Image](src)
+![dataprep](Bilder_mlops_doku/image8.png)
 
 Den vollständigen Code hierfür, findet man unter unserem Github repository:
 https://github.com/alexanderciuffreda/mlops/blob/main/dataset/data-preparation.ipynb
@@ -49,7 +49,7 @@ Von den in der Vorlesung vorgestellten Software Frameworks für Machine Learning
 Durch die Container basierte Lösung mit Kubernetes, erhofften wir uns eine niedrige Eintrittsbarriere, da in der Theorie der Kubeflow Container auf jedem System mit entsprechenden Hypervisor ausführbar und verwendbar sein müsste.
 Auf der offiziellen Seite von Kubeflow stehen dazu vielfältige Möglichkeiten zur Auswahl:
 
-![Image](src)
+![labels](Bilder_mlops_doku/image7.png)
 
 So sind neben den Software as a Service Produkten auf den gängigen Cloud Plattformen auch Versionen für Business Linux Distributionen verfügbar, die sich jedoch nicht an private Anwender zur Prototypischen Umsetzung richten, da die Kosten für eine Kubeflow Installation zum Beispiel auf Google Cloud Platform (GCP) sehr hoch sind.
 Glücklicherweise wird jedoch auch Arrikto MiniKF oder das MicroK8s Kubeflow von Canonical angeboten, welches einfach auf beliebigen Endgeräten installiert werden kann.
@@ -58,7 +58,7 @@ Leider mussten wir feststellen, dass der Hypervisor Vagrant noch nicht für ARM6
 Über das Kubeflow Dashboard konnten wir so eine erste Pipeline basierend auf dem Taxi Trips Datensatz anlegen und starten.
 Doch dann mussten wir den nächsten Wermutstropfen hinnehmen: Die Kombination aus VirtualBox (Vagrant) und Kubeflow welches sehr Hardware-Hungrig ist war zu viel für das MacBook mit nur 16 GB Arbeitsspeicher. Die Pipeline konnte nicht erfolgreich ausgeführt werden und wurde während der Ausführung aufgrund von Speicherproblemen terminiert.
 
-![Image](src)
+![kube](Bilder_mlops_doku/image5.png)
 
 Glücklicherweise wurde uns von Google ein Guthaben für die GCP zur Verfügung gestellt, weswegen wir als nächsten Schritt versuchten Vagrant und MiniKF auf einem Ubuntu Server in der Google Cloud zu installieren. Der Vorteil dabei: Nichts geht in der Cloud besser als Skalieren, so verfügten wir quasi über unendliche Hardware Ressourcen (solange das Guthaben dafür ausreicht). Leider mussten wir auch hier schnell feststellen, dass Hypervisor auf Hypervisor eine schlechte Idee ist: Da die Ubuntu Server bereits virtualisiert sind kann (im Fall von GCP) kein weiterer Virtualisierungsdienst auf dem Virtualisierungsdienst installiert werden. MiniKF mit Vagrant auf der GCP war also auch nicht möglich.
 Wir gingen zur nächsten Option über: Der neue Hoffnungsträger war das MicroK8s Kubeflow Add-on.
@@ -67,22 +67,22 @@ Wir erstellen einen Ubuntu Server in der Google Cloud und installierten K8s con 
 Dieser Prozess verlief reibungslos und bestand lediglich daraus über den Paketmanager “snap” das paket “microk8s” zu installieren. Optional konnte noch eine Version und ein Build spezifiziert werden.
 Nach der Installation lief (nach ein paar Minuten Wartezeit) auf dem Server ein Kubernetes Cluster und das Kubeflow Addon konnte aktiviert werden. Dies geschah über den einfachen Befehl “microk8s enable kubeflow”. Der Deployment Prozess dauerte je nach Hardware Ausstattung des Servers 15-20 Minuten. Meistens verwendeten wir Instanzen mit 6vCPUs 20 GB Arbeitsspeicher und 100 GB SSD. Wenn alles installiert war konnte dann der Traffic auf localhost auf dem eigenen Computer via SSH Portweiterleitung und Socks Proxy an den Kubernetes Cluster in der Cloud weitergeleitet werden und so auf das Kubeflow Dashboard zugegriffen werden.
 
-![Image](src)
+![RAM](Bilder_mlops_doku/image1.png)
 
 Die Inhalte des in der Vorlesung vorgestellten Kubeflow Tutorials basierten auf der Erstellung einer Pipeline in einem Jupyter Notebook bei dem das Addon “Kale” installiert war. Wir mussten jedoch feststellen, dass der Reiter über den das Jupyter Notebook in Kubeflow aufgerufen werden konnte nicht funktionierte.
 Wir machten uns also auf die Fehlersuche. Wir hatten keinerlei Erfahrung mit Kubernetes Clustern, für uns war diese Technologie Neuland. Nach Recherche des Fehlers stießen wir auf ein Issue welches bereits im Kubeflow Github geöffnet war (https://github.com/kubeflow/kubeflow/issues/6141) das Problem war also bekannt, jedoch war noch keine Lösung hinterlegt. Nach weiterem Suchen stießen wir auf einen weiteren Eintrag der diesen Fehler erwähnte, dieses mal auf der Canonical Homepage, hier war jedoch auch keine Lösung angegeben. Nach längerem probieren und lesen von ähnlichen Problemen konnten wir eine Lösung finden, dazu war jedoch viel Hintergrundwissen über Kubernetes und Kubeflow notwendig. Wir lernten, dass Kubernetes Applikationen via “Pods” deployed werden. Für diese Pods existiert ein eigenes Ökosystem, man kann eigene Pods kreieren, es gibt einen Store von dem Pods heruntergeladen können und verschiedenste Community Mitglieder tragen zur Entwicklung und Weiterentwicklung bei. Kubeflow ist ein Bündel aus verschiedensten Applikationen - also Pods - die zusammen jeweils einen Bestandteil von Kubeflow abbilden. Diese Modularisierungs-Architektur von Kubeflow adressiert mehrere herausforderungen im ML Umfeld: Die Softwareportabilität (“Portability”), die Skalierbarkeit und die “Composability” der ML Systeme. Das Systementwurfsprinzip Composability lässt sich gut anhand von Lego Klemmbausteinen erklären: Jeder Lego Stein kann mit einem anderen Kombiniert werden und kann dadurch ein komplexes Bauwerk bilden, beispielsweise ein Schaufelbagger oder ein Bugatti Veyron. Genau so können mit den Pods in einem Kubernetes Cluster durch Kombinationen von verschiedenen Applikationen komplexe Systeme entstehen. Die Applikationen in den Pods sind so arrangiert, dass Sie untereinander Kommunizieren und ganz einfach gesagt “Inputs” und “Outputs” in Form von Daten austauschen. Funktioniert eine Applikation nicht mehr, kann Sie einfach erneut deployed werden während alle anderen Applikationen in Ihren Pods ungestört weiter funktionieren können ohne, dass gleich das ganze System ausfällt.
 Skalierbarkeit ist durch den Kubernetes Cluster ebenfalls gegeben, sowohl vertikal durch Anpassung der zur Verfügung stehenden Ressourcen für den Cluster oder die Pods, als auch horizontal durch Erhöhung der Anzahl von Pods.
 Das Problematische Juypter Notebook welches nicht funktionierte war also ein defekter Legostein und eine eindrucksvolle Demonstration der Vorteile dieser Architektur. Obwohl der Jupyter Hub Pod nicht funktionierte, funktionierte alles andere uneingeschränkt: wir konnten den Webserver Server über das Ingress Gateway erreichen und uns mit dem Dex Authentifizierungsdienst anmelden um auf das Kubeflow Dashboard zu kommen. Zur Lösung unseres Problems entfernten wir den fehlerhaften Jupyter Hub Pod und deployten aus dem Store einfach einen neuen. Sobald der Pod den Status “up” hatte, konnten wir auf den Jupyter Hub Reiter im Kubeflow Dashboard zugreifen. Wir ergänzten das Issue auf unserem MLOps Project Board welches mit dem offiziellen Issue aus den Kubeflow Repository verbunden war. Dies blieb nicht unentdeckt und so wurde im Kubeflow Repo von der Community auf unser gelöstes Issue verwiesen (https://github.com/kubeflow/kubeflow/issues/6141#issuecomment-963487827).
 
-![Image](src)
+![Image](Bilder_mlops_doku/image9.png)
 
 Nachdem Jupyter Hub funktionierte waren wir einen Schritt weiter. Wir erstellten ein Notebook und mussten leider feststellen, dass das Kale Addon nicht vorhanden war. Die Notebooks im Jupyter Hub waren Docker Container, also ein Docker Container auf einem Kubernetes Pod. Nachdem die Versuche mit bestehendem Wissen über lokale Notebooks und deren Addon Installationen scheiterten, kamen wir auf die Idee einfach selbst ein Docker Container zu erstellen mit dem Jupyter Book wo wir das Addon bereits installiert hatten. Wir holten uns also aus dem Kale Repository auf Github die nötigen Daten und erstellen mit Docker ein Image, welches wir in unser DockerHub Repository hochluden. Anschließend konnten wir unser eigens erstelltes Kale Jupyter Notebook von dort aus durch Angabe der URL zum DockerHub Repository starten.
 
-![Image](src)
+![Image](Bilder_mlops_doku/image13.png)
 
 Es funktionierte und wir waren wirklich begeistert dem Problem auf Augenhöhe begegnet zu sein und es so gelöst zu haben. Ab und zu erhielten wir jedoch beim Starten des Notebooks einen Zertifikatsfehler, welchen wir nur durch komplettes neu aufsetzen des Kubernetes Clusters “lösen” konnten (https://github.com/kubernetes/kubernetes/issues/43924). Außerdem trat unregelmäßig der Fehler auf, dass die Dex Authentifizierung nicht funktionierte und man sich nicht mehr am Dashboard anmelden konnte. Wir konnten diesen Fehler ebenfalls nur durch löschen des Servers und neu Aufsetzen des Kubernetes Clusters beheben. Nachdem das Kale Addon auf dem Jupyter Notebook lauffähig war, machten wir uns endlich daran die Tutorial Pipeline umzusetzen. Es kam wie es kommen musste: Die Pipeline aus dem Jupyter Book konnte nicht in Kubeflow Pipelines importiert werden, das es einen Fehler beim Zugriff auf die Experimente gab (https://github.com/alexanderciuffreda/mlops/issues/7). Wir fanden hierzu nach längerer Recherche keine Lösung und drangen tief in Kubernetes spezifische Probleme bezüglich Namespaces und Identitätsverwaltung vor die für uns Anfänger im Kubernetes Bereich zu komplex waren um Sie im Rahmen dieses MLOps Projektes zu erschließen. Wir probierten es also wieder mit dem neu aufsetzen des gesamten Clusters.
 
-![Image](src)
+![Image](Bilder_mlops_doku/image15.png)
 
 Da wir in der Cloud die Möglichkeit hatten Images von unseren Servern zu erstellen sahen wir die Chance das langwierige deployment zu vereinfachen. Leider traten beim wiederherstellen von zuvor gespeicherten VM Images Zertifikatsfehler bei der Authentifizierung auf oder es wurde eine ungültige Client ID zurückgegeben (https://github.com/alexanderciuffreda/mlops/issues/8), sodass wir die Mühe in kauf nehmen mussten alles immer wieder händisch zu deployen.
 Wir versuchten beim deployment des Kubernetes Clusters nun verschiedene Methoden. Wir kombinierten verschiedene Builds und Versionen des Kubernetes Clusters mit verschiedenen Versionen des Kubeflow Add-Ons und hofften so eine Kombination zu finden, mit der alles reibungslos funktionierte. Wir variierten auch in der Abfolge der Befehle zur Aktivierung der einzelnen Dienste wie zum Beispiel DNS oder Storage und deployten unterschiedliche Versionen der benötigten Pods manuell auf dem Kubernetes Cluster.
@@ -174,10 +174,10 @@ Da wir für unseren Usecase den XGBoost Classifier verwenden wollten, mussten wi
 Nachdem wir eine lauffähige Pipeline mit unserem XGBoost Classifier hatten, mussten wir nur noch den DagRunner für Apache Airflow anpassen. Hierbei wurden die letzten Zeilen Code folgendermaßen angepasst:
 
 Pipeline mit LocalDagRunner:
-![Image](src)
+![Image](Bilder_mlops_doku/image2.png)
 
 Pipeline für Airflow:
-![Image](src)
+![Image](Bilder_mlops_doku/image11.png)
 
 #### 4.2.2 Airflow Übersicht
 Mit Apache Airflow lassen sich beliebige Datenprozesse automatisieren, orchestrieren und administrieren. Jeder mit Python Kenntnissen kann eine dynamische Pipeline erstellen, dabei ist man völlig frei in deren Ausgestaltung: Ob es sich um MLOps oder DevOps Prozesse handelt spielt keine Rolle.
@@ -185,7 +185,7 @@ Airflow kann via Python Package installiert werden. Wir installierten die Versio
 Dann starteten Airflow über das Terminal im standalone Modus. Es wurden verschiedene Datenbanken erstellt die Airflow zur Speicherung von zum Beispiel Metadaten verwendet.  und der Webserver mit dem User Interface war auf localhost mit über den Port 4040 erreichbar. Da unser Server in der Google Cloud arbeitete, nutzten wir wieder das SSH-Port-Forwarding um den Port 8082 von unserem lokalen Computer mit dem Remote Port 8080 von unserem Airflow/TFX Server in der Cloud zu verbinden. So konnten wir über localhost:8082 auf das Airflow Webinterface zugreifen. Das Anmeldepasswort für den Administrator und das dazugehörige Passwort wurden für die erste Anmeldung während dem Starten des Airflow Servers auf der Konsole ausgegeben. Wir nutzen diese Credentials um uns initial anzumelden. Anschließend erstellten wir uns über die Benutzeroberfläche eigene User. Mit denen wir uns dann anmelden konnten.
 
 User
-![Image](src)
+![Image](Bilder_mlops_doku/image12.png)
 
 Unter dem Reiter “DAGs” können die vorhandenen Pipelines verwaltet werden. Das Standard Verzeichnis für die Pipelines wird in der Datei “airflow.cfg” definiert. Wie beließen den den Pfad auf dem default Wert (“$AIRFLOW_HOME/dags/”) und starteten damit, die Taxi Pipeline mit den Test- und Trainingsdaten aus dem Tensorflow Tutorial in das entsprechende Verzeichnis zu kopieren. Wir starteten Airflow über die Konsole. Bei jedem Start von Airflow wird in dem im airflow.cfg angegebenen Verzeichnis geprüft ob neue Pipelines hinzugekommen sind.Die Pipelines werden dann automatisch in Airflow importiert. So wurde unsere Taxi Pipeline ebenfalls erfolgreich importiert. Wir konnten die Pipeline über Play Button starten. Nach dem starten der Pipeline werden die verwendeten TFX Komponenten bei der Ausführung entsprechend visualisiert. Wurde ein Vorgang erfolgreich Abgeschlossen wird dies mit Grün angezeigt, schlägt eine Operation fehl wird der zugehörige Component Rot.
 
@@ -193,8 +193,8 @@ Nun konnten wir unsere für die Verwendung von Airflow angepasste Pipeline inklu
 
 Nachdem alle Dateien an ihrem richtigen Platz waren starteten wir Airflow und wurden leider mit einem Fehler beim Import konfrontiert. Die Fehlermeldung war jedoch immer Aussagekräftig und so mussten wir lediglich Pakete in der richtigen Version (Future, Tensorflow Estimator, virtualenv) nach installieren.
 
-![Image](src)
+![Image](Bilder_mlops_doku/image3.png)
 
 Glücklicherweise gab es keine gravierenden Versionskonflikte (es kam zwar ein Fehler aber dieser war nicht kritisch) so dass schlussendlich unsere Pipeline mit dem XGBoost Trainer in Airflow importiert wurde. Wir starteten die Pipeline und staunten nicht schlecht, als das erste mal etwas auf anhieb reibungslos verlief. Jeder Component war Grün und der Status war “Success”. Somit hatten wir unsere MLOps Pipeline endlich erfolgreich in Airflow umgesetzt.
 
-![Image](src)
+![Image](Bilder_mlops_doku/image14.png)
