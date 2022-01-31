@@ -2,7 +2,7 @@
 ## Stille Wasser sind tief - eine Reise zum Delta Lake von Cenk und Alexander
 ## Datenplattformarchitekturen & MLOps
 
-von Alexander Ciuffreda(Matrikel-Nr.: 37262) und Cenk Yagkan (Matrikel-Nr.: 36806)
+von Alexander Ciuffreda (Matrikel-Nr.: 37262) und Cenk Yagkan (Matrikel-Nr.: 36806)
 
 ## 1. Projektvorstellung
 Im Rahmen des Projekts wird mit Hilfe von Open-Source-Software eine **Datenplattformarchitektur** für die Realisierung unterschiedlicher Machine Learning Anwendungsfälle konzipiert und implementiert. In der Architektur werden für eine möglichst umfassende Automatisierung des Machine Learning Lifecycles Komponenten der Disziplin **Machine Learning Operations** (MLOps) berücksichtigt.
@@ -157,7 +157,7 @@ Transform führt ein Feature-Engineering auf den Datensatz durch.
 **Trainer**
 Trainer trainiert das Modell.
 
-**Evaluator***
+**Evaluator**
 Evaluator führt eine gründliche Analyse der Trainingsergebnisse durch und hilft bei der Validierung der exportierten Modelle, um sicherzustellen, dass sie "gut genug" sind, für die Produktion.
 
 **ModelValidator**
@@ -177,4 +177,24 @@ Pipeline mit LocalDagRunner:
 ![Image](src)
 
 Pipeline für Airflow:
+![Image](src)
+
+#### 4.2.2 Airflow Übersicht
+Mit Apache Airflow lassen sich beliebige Datenprozesse automatisieren, orchestrieren und administrieren. Jeder mit Python Kenntnissen kann eine dynamische Pipeline erstellen, dabei ist man völlig frei in deren Ausgestaltung: Ob es sich um MLOps oder DevOps Prozesse handelt spielt keine Rolle.
+Airflow kann via Python Package installiert werden. Wir installierten die Version 1.3 in unser Anaconda Environment, der Installationsprozess verlief reibungslos und wir definierten im Anschluss an die Installation nur noch das Airflow home Verzeichnis.
+Dann starteten Airflow über das Terminal im standalone Modus. Es wurden verschiedene Datenbanken erstellt die Airflow zur Speicherung von zum Beispiel Metadaten verwendet.  und der Webserver mit dem User Interface war auf localhost mit über den Port 4040 erreichbar. Da unser Server in der Google Cloud arbeitete, nutzten wir wieder das SSH-Port-Forwarding um den Port 8082 von unserem lokalen Computer mit dem Remote Port 8080 von unserem Airflow/TFX Server in der Cloud zu verbinden. So konnten wir über localhost:8082 auf das Airflow Webinterface zugreifen. Das Anmeldepasswort für den Administrator und das dazugehörige Passwort wurden für die erste Anmeldung während dem Starten des Airflow Servers auf der Konsole ausgegeben. Wir nutzen diese Credentials um uns initial anzumelden. Anschließend erstellten wir uns über die Benutzeroberfläche eigene User. Mit denen wir uns dann anmelden konnten.
+
+User
+![Image](src)
+
+Unter dem Reiter “DAGs” können die vorhandenen Pipelines verwaltet werden. Das Standard Verzeichnis für die Pipelines wird in der Datei “airflow.cfg” definiert. Wie beließen den den Pfad auf dem default Wert (“$AIRFLOW_HOME/dags/”) und starteten damit, die Taxi Pipeline mit den Test- und Trainingsdaten aus dem Tensorflow Tutorial in das entsprechende Verzeichnis zu kopieren. Wir starteten Airflow über die Konsole. Bei jedem Start von Airflow wird in dem im airflow.cfg angegebenen Verzeichnis geprüft ob neue Pipelines hinzugekommen sind.Die Pipelines werden dann automatisch in Airflow importiert. So wurde unsere Taxi Pipeline ebenfalls erfolgreich importiert. Wir konnten die Pipeline über Play Button starten. Nach dem starten der Pipeline werden die verwendeten TFX Komponenten bei der Ausführung entsprechend visualisiert. Wurde ein Vorgang erfolgreich Abgeschlossen wird dies mit Grün angezeigt, schlägt eine Operation fehl wird der zugehörige Component Rot.
+
+Nun konnten wir unsere für die Verwendung von Airflow angepasste Pipeline inklusive dem Trainer File “utils.py” sowie dem Datensatz auf den Airflow Server in der Cloud kopieren. Der Datensatz musste dabei an den in der Pipeline spezifizierten Ordner kopiert werden damit der Example Gen Component auch auf die Daten zugreifen kann. In unserem Pipeline File sind alle Pfadangaben für die versatile Verwendung relativ gehalten. Ausgehend von dem DAG Verzeichnis welche in airflow.cfg definiert wurde.
+
+Nachdem alle Dateien an ihrem richtigen Platz waren starteten wir Airflow und wurden leider mit einem Fehler beim Import konfrontiert. Die Fehlermeldung war jedoch immer Aussagekräftig und so mussten wir lediglich Pakete in der richtigen Version (Future, Tensorflow Estimator, virtualenv) nach installieren.
+
+![Image](src)
+
+Glücklicherweise gab es keine gravierenden Versionskonflikte (es kam zwar ein Fehler aber dieser war nicht kritisch) so dass schlussendlich unsere Pipeline mit dem XGBoost Trainer in Airflow importiert wurde. Wir starteten die Pipeline und staunten nicht schlecht, als das erste mal etwas auf anhieb reibungslos verlief. Jeder Component war Grün und der Status war “Success”. Somit hatten wir unsere MLOps Pipeline endlich erfolgreich in Airflow umgesetzt.
+
 ![Image](src)
