@@ -197,4 +197,4 @@ Nachdem alle Dateien an ihrem richtigen Platz waren starteten wir Airflow und wu
 
 Glücklicherweise gab es keine gravierenden Versionskonflikte (es kam zwar ein Fehler aber dieser war nicht kritisch) so dass schlussendlich unsere Pipeline mit dem XGBoost Trainer in Airflow importiert wurde. Wir starteten die Pipeline und staunten nicht schlecht, als das erste mal etwas auf anhieb reibungslos verlief. Jeder Component war Grün und der Status war “Success”. Somit hatten wir unsere MLOps Pipeline endlich erfolgreich in Airflow umgesetzt.
 
-![Image](Bilder_mlops_doku/image14.png)
+![Image](Bilder_mlops_doku/image14.jpg)
