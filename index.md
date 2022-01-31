@@ -19,7 +19,7 @@ Mit Hilfe eines Klassifikationsmodells sollen die letzten 20 Zyklen einer Flugze
 Bevor wir uns dazu entschieden haben, die Lakehouse Architektur mit Hilfe des Open-Source-Projektes “Delta Lake” zu errichten, haben wir uns zuvor genauer mit dem Hadoop Ökosystem beschäftigt. Hierbei beschäftigten wir uns mit Hadoop Distributed File System (HDFS) und mit Apache Atlas. Für unsere Lakehouse Architektur hatten wir den Grundgedanken, dass wir HDFS als verteiltes Dateisystem verwenden, sodass auch große Datenmengen verarbeitet werden können. Gerade in unserem Usecase, indem Unmengen an Sensordaten zur Verfügung stehen, wäre HDFS eine solide Basis für unsere Plattformarchitektur. Um ein Datenkatalog von den Sensor-Datensätzen zu erstellen bzw. ein Metadata Management on top des HDFS zu errichten, hatten wir die Idee hierfür Apache Atlas zu verwenden. In der Praxis zeigte sich jedoch, dass es nicht so einfach ist mit einzelnen Apache Lösungen eine Lakehouse Architektur zu errichten. Deshalb entschieden wir schlussendlich für Delta Lake.
 
 **Hadoop Ökosystem**
-![Image](src)
+![Hadoop Ökosystem](Bilder_mlops_doku/image6.png)
 Quelle: https://dzone.com/articles/example-of-etl-application-using-apache-spark-and
 
 ### 3.2 Vorgehensweise für die Implementierung des Delta Lakes
