@@ -25,11 +25,11 @@ Quelle: https://dzone.com/articles/example-of-etl-application-using-apache-spark
 ### 3.2 Vorgehensweise für die Implementierung des Delta Lakes
 Im Verlauf des Projektes hat sich gezeigt, dass sich Delta Lake nicht nur ideal für die Lakehouse Architektur eignet, sondern auch einige Vorteile mit sich bringt wie die ACID-Transaktionen oder das Streaming- und Batchdaten innerhalb einer Architektur verarbeitet und gespeichert werden können. Für die Umsetzung des Delta Lakes orientierten wir uns an der [offiziellen Dokumentation von Delta Lake](https://docs.delta.io/latest/delta-intro.html). Hierbei installierten wir im ersten Schritt PySpark und anschließend das Delta Lake Paket. Darauffolgend experimentierten wir viel mit Delta Tables, um ein besseres Verständnis zu erhalten. Neben dem Erstellen, Lesen und Updaten der Tabellen lernten wir auch, dass man mit „time travel“ unterschiedliche Versionen der Tabellen abfragen kann. Nachdem wir uns sicher gefühlt haben, beschäftigen wir uns mit den Sensordaten. Nach der Experimentationsphase haben wir den Datensatz von der NASA mittels spark.read.csv eingelesen und anschließend in Delta Tables umgewandelt und in den „Bronzeordner“ abgelegt.
 
-![Image](src)
+![delta-table](Bilder_mlops_doku/image10.png)
 
 Mit der Unterteilung der Daten in unterschiedliche Qualitätsstufen verfolgten wir den Ansatz der Multi-Hop Architektur. Hierbei stellen die Rohdaten im Bronzeordner die „single source of truth“ dar, von der alles ausgeht. In weiteren Schritten wurden die Daten für die Modellierung aufbereitet. Die durchgeführten Aufbereitungsschritte werden in dem nächsten Kapitel näher erläutert. Die aufbereiteten Daten wurden dann anschließend in den Silverordner geladen. Von dort aus stehen die Daten für das Training zur Verfügung. Auf einen Goldordner haben wir in unserem Usecase verzichtet, da die Trennung zwischen Rohdaten und Trainingsdaten für unsere Zwecke genügte.
 
-![Image](src)
+![to_silver](Bilder_mlops_doku/image10.png)
 
 Die abgespeicherten Daten stehen im Delta Lake als Parquetfiles zur Verfügung. Dies bringt mehrere Vorteile mit sich. Zu einem wird durch die Abspeicherung der Daten in Parquetfiles weniger Speicherplatz benötigt und zum anderen können die Daten auch effizienter verarbeitet werden.
 
