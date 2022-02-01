@@ -12,11 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Penguin example using TFX and XGBoost.
-
-Run pipeline:
-$ python examples/xgboost_penguins/penguin_pipeline_local.py
-"""
 
 
 import os
@@ -37,12 +32,11 @@ import tensorflow as tf
 from tfx.components.example_gen import utils
 from tfx.components.example_gen.base_example_gen_executor import BaseExampleGenExecutor
 from tfx.types import standard_component_specs
-
+from tfx.proto import example_gen_pb2
 from tfx.components.base import executor_spec
+parquet_dir_path = '/home/alexander_ciuffreda/mlops/dataset/delta-lake/silver/train_data'
 
-parquet_dir_path = "~/mlops/dataset/delta-lake/silver"
-
-_pipeline_name = 'engine_xgboost_local'
+_pipeline_name = 'engine_xgboost_spark-prod'
 
 #airflow configs
 _airflow_config = {
@@ -89,10 +83,11 @@ def create_pipeline(
         metadata_path: path to local sqlite database file
         beam_pipeline_args: arguments for Beam powered components
     """
+    input_config = example_gen_pb2.Input(splits=[example_gen_pb2.Input.Split(name='parquet', pattern='*.parquet')])
     example_gen = FileBasedExampleGen(
-        custom_executor_spec=executor_spec.ExecutorClassSpec(
-            parquet_executor.Executor),
-        input_base=parquet_dir_path)
+        custom_executor_spec=executor_spec.ExecutorClassSpec(parquet_executor.Executor),
+        input_base=parquet_dir_path,
+        input_config=input_config)
 
     # Computes statistics over data for visualization and example validation.
     statistics_gen = tfx.components.StatisticsGen(
