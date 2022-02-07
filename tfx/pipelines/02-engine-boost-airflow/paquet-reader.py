@@ -4,6 +4,7 @@ output_config = example_gen_pb2.Output(
         example_gen_pb2.SplitConfig.Split(name='train', hash_buckets=3)
         ,example_gen_pb2.SplitConfig.Split(name='eval', hash_buckets=1)
     ]))
+    
 input_config = example_gen_pb2.Input(splits=[
     example_gen_pb2.Input.Split(name='parquet', pattern='*.parquet')])
 

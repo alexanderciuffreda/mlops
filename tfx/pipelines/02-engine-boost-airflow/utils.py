@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Python module file with Penguin pipeline functions and necessary utils.
 
-Include entry point run_fn() to be called by TFX Trainer.
-"""
 
 import os
 import tempfile
@@ -30,10 +27,7 @@ from tfx.dsl.io import fileio
 from tfx.utils import io_utils
 from tfx_bsl.tfxio import dataset_options
 
-#_FEATURE_KEYS = [
-#    'culmen_length_mm', 'culmen_depth_mm', 'flipper_length_mm', 'body_mass_g'
-#]
-#_LABEL_KEY = 'species'
+
 
 op_set = ["op"+str(i) for i in range(1,4)]
 sensor = ["sensor"+str(i) for i in range(1,22)]
@@ -42,8 +36,7 @@ _FEATURE_KEYS = op_set + sensor
 _LABEL_KEY = 'label'
 
 
-# The Penguin dataset has 342 records, and is divided into train and eval
-# splits in a 2:1 ratio.
+
 _TRAIN_DATA_SIZE = 13600
 _TRAIN_BATCH_SIZE = 20
 
@@ -129,5 +122,5 @@ def run_fn(fn_args: FnArgs):
                                schema)
   x_eval, y_eval = _input_fn(fn_args.eval_files, fn_args.data_accessor, schema)
   model = _train(fn_args, x_train, y_train, x_eval, y_eval)
-  absl.logging.info(model)
+  #absl.logging.info(model)
   _save_model(fn_args.serving_model_dir, model)
