@@ -1,16 +1,3 @@
-
-  .addColumn(,"INT"firstName,"INT", ,"INT"STRING,"INT") \
-  .addColumn(,"INT"middleName,"INT", ,"INT"STRING,"INT") \
-  .addColumn(,"INT"lastName,"INT", ,"INT"STRING,"INT", comment = ,"INT"surname,"INT") \
-  .addColumn(,"INT"gender,"INT", ,"INT"STRING,"INT") \
-  .addColumn(,"INT"birthDate,"INT", ,"INT"TIMESTAMP,"INT") \
-  .addColumn(,"INT"ssn,"INT", ,"INT"STRING,"INT") \
-  .addColumn(,"INT"salary,"INT", ,"INT"INT,"INT") \
-  .property(,"INT"description,"INT", ,"INT"table with people data,"INT") \
-  .location(,"INT"/tmp/delta/people10m,"INT") \
-  .execute()
-
-  myCSV= spark.read.csv(,"INT"/path/to/input/data,"INT",header=True,sep=,"INT",,"INT"); 
 DeltaTable.createOrReplace(spark) \
 .tableName("test_data")\
 .addColumn("id","INT") \
